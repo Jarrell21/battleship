@@ -7,10 +7,7 @@ const Ship = (length) => {
     numOfHits += 1;
   };
 
-  const isSunk = () => {
-    if (numOfHits >= length) return true;
-    return false;
-  };
+  const isSunk = () => numOfHits >= length;
 
   return { hit, isSunk, getNumOfHits };
 };
