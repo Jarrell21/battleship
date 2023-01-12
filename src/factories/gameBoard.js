@@ -11,7 +11,8 @@ const GameBoard = () => {
   };
 
   const placeShip = (ship, index) => {
-    if (board[index].hasShip) return;
+    if (board[index].hasShip === true) return;
+
     for (let i = 0; i < ship.getLength(); i += 1) {
       board[index + i].hasShip = true;
       board[index + i].ship = ship;
@@ -19,6 +20,8 @@ const GameBoard = () => {
   };
 
   const receiveAttack = (index) => {
+    if (board[index].isShot === true) return;
+
     board[index].isShot = true;
     if (board[index].hasShip) {
       board[index].ship.hit();

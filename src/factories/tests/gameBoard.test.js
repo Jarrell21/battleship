@@ -46,7 +46,7 @@ test('receive attack and miss', () => {
   expect(board.getBoard()[8].isShot).toBeTruthy();
 });
 
-test.only('All of the ships have been sunk', () => {
+test('All of the ships have been sunk', () => {
   const board = GameBoard();
   const carrier = Ship(5);
   const battleship = Ship(4);
