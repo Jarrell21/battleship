@@ -62,7 +62,7 @@ test('All of the ships have been sunk', () => {
 
   function receiveAttackLoop(index, length) {
     for (let i = 0; i < length; i += 1) {
-      board.receiveAttack(index + 1);
+      board.receiveAttack(index + i);
     }
   }
 
