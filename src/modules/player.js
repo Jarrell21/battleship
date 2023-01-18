@@ -1,4 +1,5 @@
-const Player = () => {
+const Player = (name) => {
+  const getName = () => name;
   const shotCoordinates = [];
 
   const attack = (gameBoard, index) => {
@@ -23,7 +24,7 @@ const Player = () => {
 
   const isAlreadyShot = (index) => shotCoordinates.includes(index);
 
-  return { attack, randomAttack };
+  return { attack, randomAttack, getName };
 };
 
 export default Player;
