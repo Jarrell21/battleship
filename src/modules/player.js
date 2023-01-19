@@ -12,10 +12,10 @@ const Player = (name) => {
   const randomAttack = (gameBoard) => {
     if (shotCoordinates.length === 100) return;
 
-    let coordinate = Math.floor(Math.random() * 10);
+    let coordinate = Math.floor(Math.random() * 100);
 
     while (isAlreadyShot(coordinate)) {
-      coordinate = Math.floor(Math.random() * 10);
+      coordinate = Math.floor(Math.random() * 100);
     }
 
     shotCoordinates.push(coordinate);
