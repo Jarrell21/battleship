@@ -1,7 +1,8 @@
+import Ship from './shipFactory';
+
 const GameBoard = () => {
   let board = [];
   let numOfShipsSunk = 0;
-  const placedShipCoord = [];
 
   const getBoard = () => board;
 
@@ -16,30 +17,69 @@ const GameBoard = () => {
     createBoard();
   };
 
-  const placeShip = (ship, index) => {
-    if (board[index].hasShip === true) return;
+  const placeShip = (ship, index, isVertical = false) => {
+    if (!isPlacementPossible(ship, index, isVertical)) return false;
 
-    placedShipCoord.push(index + ship.getLength());
+    if (isVertical) {
+      for (let i = 0; i < ship.getLength() * 10; i += 10) {
+        board[index + i].hasShip = true;
+        board[index + i].ship = ship;
+      }
+      return;
+    }
+
     for (let i = 0; i < ship.getLength(); i += 1) {
-      placedShipCoord.push(index + i);
       board[index + i].hasShip = true;
       board[index + i].ship = ship;
     }
+    return true;
   };
 
-  // const randomPlaceShip = (ship) => {
-  //   let index = Math.floor(Math.random() * 10);
+  const randomPlaceShips = () => {
+    let randomIndex = Math.floor(Math.random() * 100);
+    let randomDirection = Math.floor(Math.random() * 10) <= 5;
+    const carrier = Ship(5);
+    const battleship = Ship(4);
+    const destroyer = Ship(3);
+    const submarine = Ship(3);
+    const patrolBoat = Ship(2);
+    const shipsArray = [carrier, battleship, destroyer, submarine, patrolBoat];
 
-  //   while (isAlreadyTaken(index, board[index].ship)) {
-  //     index = Math.floor(Math.random() * 10);
-  //   }
+    shipsArray.forEach((ship) => {
+      while (placeShip(ship, randomIndex, randomDirection) === false) {
+        randomIndex = Math.floor(Math.random() * 100);
+        randomDirection = Math.floor(Math.random() * 10) <= 5;
+      }
+    });
+  };
 
-  //   for (let i = 0; i < ship.getLength(); i += 1) {
-  //     placedShipCoord.push(index + i);
-  //     board[index + i].hasShip = true;
-  //     board[index + i].ship = ship;
-  //   }
-  // };
+  const isPlacementPossible = (ship, index, isVertical = false) => {
+    if (index < 0 || index > 98) return false;
+
+    // if ship doesn't fit gameboard
+    if (isVertical) {
+      if ((ship.getLength() - 1) * 10 + index > 99) return false;
+    } else {
+      for (let i = 0; i < 100; i += 10) {
+        if (index < i || index < 10) {
+          if (ship.getLength() - 1 + index > 9 + i) return false;
+        }
+      }
+    }
+
+    // if field is already taken
+    if (isVertical) {
+      for (let i = 0; i < ship.getLength(); i += 1) {
+        if (board[index + i * 10].hasShip === true) return false;
+      }
+    } else {
+      for (let i = 0; i < ship.getLength(); i += 1) {
+        if (board[index + i].hasShip === true) return false;
+      }
+    }
+
+    return true;
+  };
 
   const receiveAttack = (index) => {
     if (board[index].isShot === true) return;
@@ -53,23 +93,20 @@ const GameBoard = () => {
     }
   };
 
-  // const isAlreadyTaken = (index, ship) => {
-  //   const shipCoordinates = [];
-  //   for (let i = 0; i < ship.getLength(); i += 1) {
+  const getEmptyCoordinates = () =>
+    board.filter((coordinate) => coordinate.hasShip === false).length;
 
-  //   }
-  // };
-
-  const allShipsAreSunk = () => numOfShipsSunk === 5;
+  const allShipsHaveSunk = () => numOfShipsSunk === 5;
 
   createBoard();
   return {
     getBoard,
     placeShip,
-    // randomPlaceShip,
+    randomPlaceShips,
     receiveAttack,
-    allShipsAreSunk,
+    allShipsHaveSunk,
     resetBoard,
+    getEmptyCoordinates,
   };
 };
 
