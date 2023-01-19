@@ -31,11 +31,7 @@ const Game = (() => {
     playerBoard.placeShip(playerSubmarine, 16);
     playerBoard.placeShip(playerPatrolboat, 21);
 
-    // computerBoard.randomPlaceShip(computerCarrier);
-    // computerBoard.randomPlaceShip(computerBattleship);
-    // computerBoard.randomPlaceShip(computerDestroyer);
-    // computerBoard.randomPlaceShip(computerSubmarine);
-    // computerBoard.randomPlaceShip(computerPatrolboat);
+    computerBoard.randomPlaceShips();
   };
 
   const reset = () => {
@@ -53,11 +49,11 @@ const Game = (() => {
   };
 
   const over = () => {
-    if (playerBoard.allShipsAreSunk()) {
+    if (playerBoard.allShipsHaveSunk()) {
       winner = computer.getName();
       return true;
     }
-    if (computerBoard.allShipsAreSunk()) {
+    if (computerBoard.allShipsHaveSunk()) {
       winner = player.getName();
       return true;
     }
