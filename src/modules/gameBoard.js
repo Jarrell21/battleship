@@ -103,6 +103,7 @@ const GameBoard = () => {
     getBoard,
     placeShip,
     randomPlaceShips,
+    isPlacementPossible,
     receiveAttack,
     allShipsHaveSunk,
     resetBoard,
