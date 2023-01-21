@@ -18,25 +18,28 @@ const Game = (() => {
   const playerDestroyer = Ship(3);
   const playerSubmarine = Ship(3);
   const playerPatrolboat = Ship(2);
-  const computerCarrier = Ship(5);
-  const computerBattleship = Ship(4);
-  const computerDestroyer = Ship(3);
-  const computerSubmarine = Ship(3);
-  const computerPatrolboat = Ship(2);
+
+  const getGameBoard = (playerName) => {
+    if (playerName === 'player') return playerBoard;
+    return computerBoard;
+  };
+
+  const getPlayerShips = () => [
+    playerCarrier,
+    playerBattleship,
+    playerDestroyer,
+    playerSubmarine,
+    playerPatrolboat,
+  ];
 
   const init = () => {
-    playerBoard.placeShip(playerCarrier, 0);
-    playerBoard.placeShip(playerBattleship, 6);
-    playerBoard.placeShip(playerDestroyer, 12);
-    playerBoard.placeShip(playerSubmarine, 16);
-    playerBoard.placeShip(playerPatrolboat, 21);
-
     computerBoard.randomPlaceShips();
   };
 
   const reset = () => {
     playerBoard.resetBoard();
     computerBoard.resetBoard();
+    init();
   };
 
   const turn = (next) => {
@@ -61,7 +64,7 @@ const Game = (() => {
 
   const getWinner = () => winner;
 
-  return { init, getWinner, playerBoard, computerBoard, reset };
+  return { init, getWinner, getGameBoard, getPlayerShips, reset };
 })();
 
 export default Game;
