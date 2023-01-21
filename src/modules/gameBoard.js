@@ -25,19 +25,19 @@ const GameBoard = () => {
         board[index + i].hasShip = true;
         board[index + i].ship = ship;
       }
-      return;
+    } else {
+      for (let i = 0; i < ship.getLength(); i += 1) {
+        board[index + i].hasShip = true;
+        board[index + i].ship = ship;
+      }
     }
 
-    for (let i = 0; i < ship.getLength(); i += 1) {
-      board[index + i].hasShip = true;
-      board[index + i].ship = ship;
-    }
     return true;
   };
 
   const randomPlaceShips = () => {
     let randomIndex = Math.floor(Math.random() * 100);
-    let randomDirection = Math.floor(Math.random() * 10) <= 5;
+    let randomOrientation = Math.floor(Math.random() * 10) <= 5;
     const carrier = Ship(5);
     const battleship = Ship(4);
     const destroyer = Ship(3);
@@ -46,9 +46,9 @@ const GameBoard = () => {
     const shipsArray = [carrier, battleship, destroyer, submarine, patrolBoat];
 
     shipsArray.forEach((ship) => {
-      while (placeShip(ship, randomIndex, randomDirection) === false) {
+      while (placeShip(ship, randomIndex, randomOrientation) === false) {
         randomIndex = Math.floor(Math.random() * 100);
-        randomDirection = Math.floor(Math.random() * 10) <= 5;
+        randomOrientation = Math.floor(Math.random() * 10) <= 5;
       }
     });
   };
@@ -61,7 +61,7 @@ const GameBoard = () => {
       if ((ship.getLength() - 1) * 10 + index > 99) return false;
     } else {
       for (let i = 0; i < 100; i += 10) {
-        if (index < i || index < 10) {
+        if (index <= 9 + i) {
           if (ship.getLength() - 1 + index > 9 + i) return false;
         }
       }
