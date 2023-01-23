@@ -47,7 +47,6 @@ const UI = (() => {
     <section class="placing-ship">
       <span class="place-ship-instruction">Place your Carrier!</span>
       <div class="player-board gameboard"></div>
-      
       <div class="place-ship-buttons">
         <button class="rotate-btn">Rotate</button>
         <button class="random-btn">Place randomly</button>
@@ -64,23 +63,20 @@ const UI = (() => {
   const placeShipInitEvents = () => {
     const boardSquares = document.querySelectorAll('.player-board-square');
     const rotateBtn = document.querySelector('.rotate-btn');
+    const randomBtn = document.querySelector('.random-btn');
     const resetPlaceShipBtn = document.querySelector('.reset-btn');
 
     boardSquares.forEach((square) => {
-      square.addEventListener('mouseover', (e) => {
-        addShipPreview(e, currentShip, isVertical);
-      });
-      square.addEventListener('mouseout', (e) => {
-        removeShipPreview(e, currentShip, isVertical);
-      });
+      square.addEventListener('mouseover', addShipPreview);
+      square.addEventListener('mouseout', removeShipPreview);
       square.addEventListener('click', placeShip);
 
       square.classList.add('placing');
     });
 
     rotateBtn.addEventListener('click', rotateShip);
-
     resetPlaceShipBtn.addEventListener('click', resetPlaceShip);
+    randomBtn.addEventListener('click', placeShipsRandomly);
   };
 
   // Function when mouse is over the board
@@ -197,6 +193,7 @@ const UI = (() => {
 
       for (let i = 0; i < currentShip.getLength(); i += 1) {
         targetArr[i].setAttribute('data-hasShip', 'true');
+        targetArr[i].classList.add('placed');
       }
 
       if (currentShip !== ships[4]) {
@@ -204,22 +201,33 @@ const UI = (() => {
         return;
       }
 
-      console.log('Done');
-      const boardSquares = document.querySelectorAll('.player-board-square');
-
-      boardSquares.forEach((square) => {
-        square.removeEventListener('mouseover', (ev) => {
-          addShipPreview(ev, currentShip, isVertical);
-        });
-        square.removeEventListener('mouseout', (ev) => {
-          removeShipPreview(ev, currentShip, isVertical);
-        });
-        square.removeEventListener('click', placeShip);
-
-        square.classList.remove('placing');
-      });
-      // loadMainGameScreen();
+      donePlacingShips();
     }
+  };
+
+  const placeShipsRandomly = () => {
+    const playerBoard = Game.getGameBoard('player');
+
+    playerBoard.resetBoard();
+    playerBoard.randomPlaceShips();
+    updateBoard(playerBoard);
+  };
+
+  const updateBoard = (board) => {
+    const thisBoard = board.getBoard();
+    const boardSquares = document.querySelectorAll('.player-board-square');
+
+    for (let i = 0; i < thisBoard.length; i += 1) {
+      boardSquares[i].removeAttribute('id');
+      boardSquares[i].setAttribute('data-hasShip', 'false');
+
+      if (thisBoard[i].hasShip === true) {
+        boardSquares[i].setAttribute('data-hasShip', 'true');
+        boardSquares[i].setAttribute('id', 'placed');
+      }
+    }
+
+    donePlacingShips();
   };
 
   // Function for changing ship after the previous ship was placed
@@ -260,6 +268,26 @@ const UI = (() => {
     playerBoard.resetBoard();
     loadPlaceShipScreen();
     currentShip = ships[0];
+  };
+
+  const donePlacingShips = () => {
+    const boardSquares = document.querySelectorAll('.player-board-square');
+    const placeShipInstruction = document.querySelector(
+      '.place-ship-instruction'
+    );
+
+    placeShipInstruction.innerHTML = `<button class="start-btn">Start Game</button>`;
+
+    boardSquares.forEach((square) => {
+      square.removeEventListener('mouseover', addShipPreview);
+      square.removeEventListener('mouseout', removeShipPreview);
+      square.removeEventListener('click', placeShip);
+      square.classList.remove('placing');
+    });
+
+    const startBtn = document.querySelector('.start-btn');
+
+    startBtn.addEventListener('click', loadMainGameScreen);
   };
 
   // The following functions are for the main game screen
