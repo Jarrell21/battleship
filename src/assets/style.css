@@ -24,6 +24,19 @@ main {
     color: black;
 }
 
+#ship-preview {
+    background-color: black;
+    color: red;
+}
+
+.placing {
+    cursor: pointer;
+}
+
+.not-allowed {
+    cursor: no-drop;
+}
+
 .gameboards-container {
     display: flex;
     flex-direction: column;
