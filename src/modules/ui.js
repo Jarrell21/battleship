@@ -4,7 +4,6 @@ import GameBoard from './gameBoard';
 
 const UI = (() => {
   const loadPage = () => {
-    Game.init();
     loadPlaceShipScreen();
   };
 
@@ -18,7 +17,7 @@ const UI = (() => {
     }
 
     for (let i = 0; i < array.length; i += 1) {
-      board.innerHTML += `<div class="${player}-board-square" data-index="${i}" data-hasShip="${array[i].hasShip}">${i}</div>`;
+      board.innerHTML += `<div class="${player}-board-square" data-index="${i}" data-hasShip="${array[i].hasShip}"></div>`;
     }
   };
 
@@ -36,35 +35,23 @@ const UI = (() => {
     });
   };
 
-  const initButtons = () => {
-    const resetBtn = document.querySelector('.reset-btn');
-
-    resetBtn.addEventListener('click', resetGame);
-  };
-
-  const resetGame = () => {
-    const computerBoard = document.querySelector(`.computer-board`);
-    computerBoard.innerHTML = '';
-    Game.reset();
-    createGameBoard('computer');
-    loadFleet('computer');
-  };
-
   // The following functions are for the placing ship screen
   const ships = Game.getPlayerShips();
   let currentShip = ships[0];
   let isVertical = false;
 
   const loadPlaceShipScreen = () => {
-    const main = document.querySelector('main');
+    const main = document.querySelector('.main');
 
     main.innerHTML += `
-    <section class="gameboards-container">
-      <div>
-        <span class="place-ship-instruction">Place your Carrier!</span>
+    <section class="placing-ship">
+      <span class="place-ship-instruction">Place your Carrier!</span>
+      <div class="player-board gameboard"></div>
+      
+      <div class="place-ship-buttons">
         <button class="rotate-btn">Rotate</button>
-        <button class="reset-place-ship-btn">Reset</button>
-        <div class="player-board gameboard"></div>
+        <button class="random-btn">Place randomly</button>
+        <button class="reset-btn">Reset</button>
       </div>
     </section>`;
 
@@ -77,7 +64,7 @@ const UI = (() => {
   const placeShipInitEvents = () => {
     const boardSquares = document.querySelectorAll('.player-board-square');
     const rotateBtn = document.querySelector('.rotate-btn');
-    const resetPlaceShipBtn = document.querySelector('.reset-place-ship-btn');
+    const resetPlaceShipBtn = document.querySelector('.reset-btn');
 
     boardSquares.forEach((square) => {
       square.addEventListener('mouseover', (e) => {
@@ -87,6 +74,8 @@ const UI = (() => {
         removeShipPreview(e, currentShip, isVertical);
       });
       square.addEventListener('click', placeShip);
+
+      square.classList.add('placing');
     });
 
     rotateBtn.addEventListener('click', rotateShip);
@@ -94,14 +83,10 @@ const UI = (() => {
     resetPlaceShipBtn.addEventListener('click', resetPlaceShip);
   };
 
+  // Function when mouse is over the board
   const addShipPreview = (e) => {
-    const boardSquares = document.querySelectorAll('.player-board-square');
     const playerBoard = Game.getGameBoard('player');
     const index = parseInt(e.target.getAttribute('data-index'));
-
-    boardSquares.forEach((square) => {
-      square.classList.add('placing');
-    });
 
     if (playerBoard.isPlacementPossible(currentShip, index, isVertical)) {
       let targetArr = [];
@@ -120,6 +105,7 @@ const UI = (() => {
     }
   };
 
+  // Function when mouse is out from the board
   const removeShipPreview = (e) => {
     const playerBoard = Game.getGameBoard('player');
     const index = parseInt(e.target.getAttribute('data-index'));
@@ -143,6 +129,8 @@ const UI = (() => {
     }
   };
 
+  // Returns an array that contains the coordinates
+  // for the specific ship and it's orientation
   const populateTargetShipCoord = (e, orientation) => {
     const targetArr = [];
     if (orientation === 'vertical') {
@@ -191,6 +179,7 @@ const UI = (() => {
     return targetArr;
   };
 
+  // Function for placing ships
   const placeShip = (e) => {
     const playerBoard = Game.getGameBoard('player');
     const index = parseInt(e.target.getAttribute('data-index'));
@@ -215,17 +204,25 @@ const UI = (() => {
         return;
       }
 
-      console.log('Change to main screen');
+      console.log('Done');
       const boardSquares = document.querySelectorAll('.player-board-square');
 
       boardSquares.forEach((square) => {
-        square.removeEventListener('mouseover', addShipPreview);
-        square.removeEventListener('mouseout', removeShipPreview);
+        square.removeEventListener('mouseover', (ev) => {
+          addShipPreview(ev, currentShip, isVertical);
+        });
+        square.removeEventListener('mouseout', (ev) => {
+          removeShipPreview(ev, currentShip, isVertical);
+        });
         square.removeEventListener('click', placeShip);
+
+        square.classList.remove('placing');
       });
+      // loadMainGameScreen();
     }
   };
 
+  // Function for changing ship after the previous ship was placed
   const changeShip = () => {
     const placeShipInstruction = document.querySelector(
       '.place-ship-instruction'
@@ -257,13 +254,40 @@ const UI = (() => {
 
   const resetPlaceShip = () => {
     const playerBoard = Game.getGameBoard('player');
-    const main = document.querySelector('main');
+    const main = document.querySelector('.main');
 
     main.innerHTML = '';
     playerBoard.resetBoard();
     loadPlaceShipScreen();
     currentShip = ships[0];
   };
+
+  // The following functions are for the main game screen
+  const loadMainGameScreen = () => {
+    const main = document.querySelector('.main');
+
+    main.innerHTML = `
+    <section class="gameboards-container">
+      <div>
+        <div class="player-board gameboard"></div>
+        <span>Your game board</span>
+      </div>
+      <div>
+        <div class="computer-board gameboard"></div>
+        <span>Computer game board</span>
+      </div>
+    </section>`;
+
+    Game.init();
+    createGameBoard('player');
+    createGameBoard('computer');
+    loadFleet('player');
+    loadFleet('computer');
+  };
+
+  const initButtons = () => {};
+
+  const resetGame = () => {};
 
   return { loadPage };
 })();
