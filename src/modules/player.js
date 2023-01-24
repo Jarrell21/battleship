@@ -3,10 +3,11 @@ const Player = (name) => {
   const shotCoordinates = [];
 
   const attack = (gameBoard, index) => {
-    if (isAlreadyShot(index)) return;
+    if (isAlreadyShot(index)) return false;
 
     gameBoard.receiveAttack(index);
     shotCoordinates.push(index);
+    return true;
   };
 
   const randomAttack = (gameBoard) => {
