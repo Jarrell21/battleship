@@ -13,11 +13,11 @@ const Game = (() => {
   const computerBoard = GameBoard();
 
   // Create players ships
-  const playerCarrier = Ship(5);
-  const playerBattleship = Ship(4);
-  const playerDestroyer = Ship(3);
-  const playerSubmarine = Ship(3);
-  const playerPatrolboat = Ship(2);
+  const playerCarrier = Ship(5, 'Carrier');
+  const playerBattleship = Ship(4, 'Battleship');
+  const playerDestroyer = Ship(3, 'Destroyer');
+  const playerSubmarine = Ship(3, 'Submarine');
+  const playerPatrolboat = Ship(2, 'Patrolboat');
 
   const getGameBoard = (playerName) => {
     if (playerName === 'player') return playerBoard;
