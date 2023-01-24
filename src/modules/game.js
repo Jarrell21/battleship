@@ -19,6 +19,9 @@ const Game = (() => {
   const playerSubmarine = Ship(3, 'Submarine');
   const playerPatrolboat = Ship(2, 'Patrolboat');
 
+  const getPlayer = (playerName) =>
+    playerName === 'player' ? player : computer;
+
   const getGameBoard = (playerName) => {
     if (playerName === 'player') return playerBoard;
     return computerBoard;
@@ -43,11 +46,6 @@ const Game = (() => {
   };
 
   const turn = (next) => {
-    if (next === player) {
-      player.randomAttack(computerBoard);
-      return;
-    }
-
     computer.randomAttack(playerBoard);
   };
 
@@ -64,7 +62,16 @@ const Game = (() => {
 
   const getWinner = () => winner;
 
-  return { init, getWinner, getGameBoard, getPlayerShips, reset };
+  return {
+    init,
+    getPlayer,
+    getWinner,
+    getGameBoard,
+    getPlayerShips,
+    reset,
+    turn,
+    over,
+  };
 })();
 
 export default Game;
