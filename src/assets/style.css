@@ -24,7 +24,7 @@ main {
     color: black;
 }
 
-#ship-preview, #placed {
+.ship-preview, .placed {
     background-color: gray;
 }
 
@@ -34,6 +34,14 @@ main {
 
 .not-allowed {
     cursor: no-drop;
+}
+
+.shooting-allowed {
+    cursor: crosshair;
+}
+
+.ship-is-shot {
+    background-color: red;
 }
 
 .gameboards-container {
@@ -53,7 +61,6 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: white;
     border: solid 1px black;
 }
 
