@@ -5,6 +5,7 @@ import GameBoard from './gameBoard';
 const UI = (() => {
   const loadPage = () => {
     loadPlaceShipScreen();
+    // loadMainGameScreen();
   };
 
   const createGameBoard = (player) => {
@@ -17,7 +18,7 @@ const UI = (() => {
     }
 
     for (let i = 0; i < array.length; i += 1) {
-      board.innerHTML += `<div class="${player}-board-square" data-index="${i}" data-hasShip="${array[i].hasShip}"></div>`;
+      board.innerHTML += `<div class="${player}-board-square" data-index="${i}" data-hasShip="${array[i].hasShip}" data-isShot="${array[i].isShot}"></div>`;
     }
   };
 
@@ -27,9 +28,9 @@ const UI = (() => {
     [...board.children].forEach((child) => {
       if (child.getAttribute('data-hasShip') === 'true') {
         if (player === 'player') {
-          child.style.backgroundColor = 'blue';
+          child.classList.add('placed');
         } else {
-          child.style.backgroundColor = 'blue';
+          child.classList.add('placed');
         }
       }
     });
@@ -45,7 +46,7 @@ const UI = (() => {
 
     main.innerHTML += `
     <section class="placing-ship">
-      <span class="place-ship-instruction">Place your Carrier!</span>
+      <span class="place-ship-instruction">Place your ${currentShip.getName()}!</span>
       <div class="player-board gameboard"></div>
       <div class="place-ship-buttons">
         <button class="rotate-btn">Rotate</button>
@@ -61,12 +62,14 @@ const UI = (() => {
 
   // Adding event listeners
   const placeShipInitEvents = () => {
-    const boardSquares = document.querySelectorAll('.player-board-square');
+    const playerBoardSquares = document.querySelectorAll(
+      '.player-board-square'
+    );
     const rotateBtn = document.querySelector('.rotate-btn');
     const randomBtn = document.querySelector('.random-btn');
     const resetPlaceShipBtn = document.querySelector('.reset-btn');
 
-    boardSquares.forEach((square) => {
+    playerBoardSquares.forEach((square) => {
       square.addEventListener('mouseover', addShipPreview);
       square.addEventListener('mouseout', removeShipPreview);
       square.addEventListener('click', placeShip);
@@ -94,7 +97,7 @@ const UI = (() => {
       }
 
       for (let i = 0; i < currentShip.getLength(); i += 1) {
-        targetArr[i].setAttribute('id', 'ship-preview');
+        targetArr[i].classList.add('ship-preview');
       }
     } else {
       e.target.classList.add('not-allowed');
@@ -117,7 +120,7 @@ const UI = (() => {
 
       for (let i = 0; i < currentShip.getLength(); i += 1) {
         if (targetArr[i].getAttribute('data-hasShip') === 'false') {
-          targetArr[i].removeAttribute('id');
+          targetArr[i].classList.remove('ship-preview');
         }
       }
     } else {
@@ -193,6 +196,8 @@ const UI = (() => {
 
       for (let i = 0; i < currentShip.getLength(); i += 1) {
         targetArr[i].setAttribute('data-hasShip', 'true');
+        targetArr[i].classList.remove('placing');
+        targetArr[i].classList.remove('ship-preview');
         targetArr[i].classList.add('placed');
       }
 
@@ -215,15 +220,17 @@ const UI = (() => {
 
   const updateBoard = (board) => {
     const thisBoard = board.getBoard();
-    const boardSquares = document.querySelectorAll('.player-board-square');
+    const playerBoardSquares = document.querySelectorAll(
+      '.player-board-square'
+    );
 
     for (let i = 0; i < thisBoard.length; i += 1) {
-      boardSquares[i].removeAttribute('id');
-      boardSquares[i].setAttribute('data-hasShip', 'false');
+      playerBoardSquares[i].classList.remove('placed');
+      playerBoardSquares[i].setAttribute('data-hasShip', 'false');
 
       if (thisBoard[i].hasShip === true) {
-        boardSquares[i].setAttribute('data-hasShip', 'true');
-        boardSquares[i].setAttribute('id', 'placed');
+        playerBoardSquares[i].setAttribute('data-hasShip', 'true');
+        playerBoardSquares[i].classList.add('placed');
       }
     }
 
@@ -235,13 +242,11 @@ const UI = (() => {
     const placeShipInstruction = document.querySelector(
       '.place-ship-instruction'
     );
-    const shipNames = [
-      'Carrier',
-      'BattleShip',
-      'Destroyer',
-      'Submarine',
-      'Patrol Boat',
-    ];
+    const shipNames = [];
+
+    ships.forEach((ship) => {
+      shipNames.push(ship.getName());
+    });
 
     for (let i = 0; i < ships.length; i += 1) {
       if (currentShip === ships[i]) {
@@ -271,14 +276,16 @@ const UI = (() => {
   };
 
   const donePlacingShips = () => {
-    const boardSquares = document.querySelectorAll('.player-board-square');
+    const playerBoardSquares = document.querySelectorAll(
+      '.player-board-square'
+    );
     const placeShipInstruction = document.querySelector(
       '.place-ship-instruction'
     );
 
     placeShipInstruction.innerHTML = `<button class="start-btn">Start Game</button>`;
 
-    boardSquares.forEach((square) => {
+    playerBoardSquares.forEach((square) => {
       square.removeEventListener('mouseover', addShipPreview);
       square.removeEventListener('mouseout', removeShipPreview);
       square.removeEventListener('click', placeShip);
@@ -310,12 +317,69 @@ const UI = (() => {
     createGameBoard('player');
     createGameBoard('computer');
     loadFleet('player');
-    loadFleet('computer');
+    // loadFleet('computer');
+    initGameEvents();
   };
 
-  const initButtons = () => {};
+  const initGameEvents = () => {
+    const computerBoardSquares = document.querySelectorAll(
+      '.computer-board-square'
+    );
 
-  const resetGame = () => {};
+    computerBoardSquares.forEach((square) => {
+      square.addEventListener('click', playerAttack);
+      square.classList.add('shooting-allowed');
+    });
+  };
+
+  const playerAttack = (e) => {
+    const targetElement = e.target;
+    const index = parseInt(targetElement.getAttribute('data-index'));
+    const player = Game.getPlayer('player');
+    const computerBoard = Game.getGameBoard('computer');
+
+    if (!player.attack(computerBoard, index)) return;
+
+    if (targetElement.getAttribute('data-hasShip') === 'true') {
+      targetElement.classList.add('ship-is-shot');
+    }
+
+    targetElement.textContent = 'X';
+    targetElement.setAttribute('data-isShot', 'true');
+    targetElement.classList.remove('shooting-allowed');
+    targetElement.classList.add('not-allowed');
+
+    if (!Game.over()) {
+      setTimeout(computerAttack, 1000);
+      return;
+    }
+
+    setTimeout(() => {
+      alert('YOU WON');
+    }, 1000);
+  };
+
+  const computerAttack = () => {
+    const playerBoardSquares = document.querySelectorAll(
+      '.player-board-square'
+    );
+    const playerBoard = Game.getGameBoard('player').getBoard();
+
+    Game.turn('computer');
+
+    for (let i = 0; i < playerBoard.length; i += 1) {
+      const { hasShip } = playerBoard[i];
+      const { isShot } = playerBoard[i];
+      if (isShot) {
+        playerBoardSquares[i].textContent = 'X';
+        if (hasShip) {
+          playerBoardSquares[i].style.backgroundColor = 'red';
+        }
+      }
+    }
+  };
+
+  const restartGame = () => {};
 
   return { loadPage };
 })();
