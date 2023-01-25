@@ -39,13 +39,12 @@ const Game = (() => {
     computerBoard.randomPlaceShips();
   };
 
-  const reset = () => {
+  const restart = () => {
     playerBoard.resetBoard();
     computerBoard.resetBoard();
-    init();
   };
 
-  const computerTurn = (next) => {
+  const computerTurn = () => {
     computer.randomAttack(playerBoard);
   };
 
@@ -68,7 +67,7 @@ const Game = (() => {
     getWinner,
     getGameBoard,
     getPlayerShips,
-    reset,
+    restart,
     computerTurn,
     over,
   };
