@@ -51,11 +51,11 @@ const UI = (() => {
 
     createGameBoard('player');
     loadFleet('player');
-    placeShipInitEvents('enable');
+    placeShipInitEvents(true);
   };
 
   // Adding event listeners
-  const placeShipInitEvents = (command) => {
+  const placeShipInitEvents = (enable) => {
     const playerBoardSquares = document.querySelectorAll(
       '.player-board-square'
     );
@@ -63,7 +63,7 @@ const UI = (() => {
     const randomBtn = document.querySelector('.random-btn');
     const resetPlaceShipBtn = document.querySelector('.reset-btn');
 
-    if (command === 'enable') {
+    if (enable) {
       playerBoardSquares.forEach((square) => {
         square.addEventListener('mouseover', addShipPreview);
         square.addEventListener('mouseout', removeShipPreview);
@@ -278,7 +278,7 @@ const UI = (() => {
       '.place-ship-instruction'
     );
 
-    placeShipInitEvents('disable');
+    placeShipInitEvents(false);
 
     placeShipInstruction.innerHTML = `<button class="start-btn">Start Game</button>`;
     const startBtn = document.querySelector('.start-btn');
@@ -308,19 +308,21 @@ const UI = (() => {
     createGameBoard('computer');
     loadFleet('player');
     loadFleet('computer');
-    initGameEvents('enable');
+    initGameEvents(true);
   };
 
-  const initGameEvents = (command) => {
+  const initGameEvents = (enable) => {
     const computerBoardSquares = document.querySelectorAll(
       '.computer-board-square'
     );
     const restartGameBtn = document.querySelector('.restart-game-btn');
 
-    if (command === 'enable') {
+    if (enable) {
       computerBoardSquares.forEach((square) => {
         square.addEventListener('click', playerAttack);
-        square.classList.add('shooting-allowed');
+        if (square.getAttribute('data-isShot') === 'false') {
+          square.classList.add('shooting-allowed');
+        }
       });
 
       restartGameBtn.addEventListener('click', restartGame);
@@ -369,7 +371,7 @@ const UI = (() => {
 
     Game.computerTurn();
     gameInfo.innerHTML = "Computer's turn...";
-    initGameEvents('disable');
+    initGameEvents(false);
 
     setTimeout(() => {
       for (let i = 0; i < playerBoard.length; i += 1) {
@@ -385,7 +387,7 @@ const UI = (() => {
 
       setTimeout(() => {
         gameInfo.innerHTML = 'Your turn...';
-        initGameEvents('enable');
+        initGameEvents(true);
       }, 1000);
     }, 1000);
 
