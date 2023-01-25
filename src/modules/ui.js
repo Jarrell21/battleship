@@ -1,11 +1,9 @@
 import '../assets/style.css';
 import Game from './game';
-import GameBoard from './gameBoard';
 
 const UI = (() => {
   const loadPage = () => {
     loadPlaceShipScreen();
-    // loadMainGameScreen();
   };
 
   const createGameBoard = (player) => {
@@ -42,7 +40,7 @@ const UI = (() => {
 
     main.innerHTML += `
     <section class="placing-ship">
-      <span class="place-ship-instruction">Place your ${currentShip.getName()}!</span>
+      <span class="place-ship-instruction">Place your ${currentShip.getName()}</span>
       <div class="player-board gameboard"></div>
       <div class="place-ship-buttons">
         <button class="rotate-btn">Rotate</button>
@@ -53,11 +51,11 @@ const UI = (() => {
 
     createGameBoard('player');
     loadFleet('player');
-    placeShipInitEvents();
+    placeShipInitEvents('enable');
   };
 
   // Adding event listeners
-  const placeShipInitEvents = () => {
+  const placeShipInitEvents = (command) => {
     const playerBoardSquares = document.querySelectorAll(
       '.player-board-square'
     );
@@ -65,25 +63,35 @@ const UI = (() => {
     const randomBtn = document.querySelector('.random-btn');
     const resetPlaceShipBtn = document.querySelector('.reset-btn');
 
-    playerBoardSquares.forEach((square) => {
-      square.addEventListener('mouseover', addShipPreview);
-      square.addEventListener('mouseout', removeShipPreview);
-      square.addEventListener('click', placeShip);
+    if (command === 'enable') {
+      playerBoardSquares.forEach((square) => {
+        square.addEventListener('mouseover', addShipPreview);
+        square.addEventListener('mouseout', removeShipPreview);
+        square.addEventListener('click', placeShip);
 
-      square.classList.add('placing');
-    });
+        square.classList.add('placing');
+      });
 
-    rotateBtn.addEventListener('click', rotateShip);
-    resetPlaceShipBtn.addEventListener('click', resetPlaceShip);
-    randomBtn.addEventListener('click', placeShipsRandomly);
+      rotateBtn.addEventListener('click', rotateShip);
+      resetPlaceShipBtn.addEventListener('click', resetPlaceShip);
+      randomBtn.addEventListener('click', placeShipsRandomly);
+    } else {
+      playerBoardSquares.forEach((square) => {
+        square.removeEventListener('mouseover', addShipPreview);
+        square.removeEventListener('mouseout', removeShipPreview);
+        square.removeEventListener('click', placeShip);
+
+        square.classList.remove('placing');
+      });
+    }
   };
 
-  // Function when mouse is over the board
+  // Function when mouse is over the board squares
   const addShipPreview = (e) => {
-    const playerBoard = Game.getGameBoard('player');
+    const playerBoardObj = Game.getGameBoard('player');
     const index = parseInt(e.target.getAttribute('data-index'));
 
-    if (playerBoard.isPlacementPossible(currentShip, index, isVertical)) {
+    if (playerBoardObj.isPlacementPossible(currentShip, index, isVertical)) {
       let targetArr = [];
 
       if (isVertical) {
@@ -100,12 +108,12 @@ const UI = (() => {
     }
   };
 
-  // Function when mouse is out from the board
+  // Function when mouse is out from each of the board squares
   const removeShipPreview = (e) => {
-    const playerBoard = Game.getGameBoard('player');
+    const playerBoardObj = Game.getGameBoard('player');
     const index = parseInt(e.target.getAttribute('data-index'));
 
-    if (playerBoard.isPlacementPossible(currentShip, index, isVertical)) {
+    if (playerBoardObj.isPlacementPossible(currentShip, index, isVertical)) {
       let targetArr = [];
 
       if (isVertical) {
@@ -176,10 +184,10 @@ const UI = (() => {
 
   // Function for placing ships
   const placeShip = (e) => {
-    const playerBoard = Game.getGameBoard('player');
+    const playerBoardObj = Game.getGameBoard('player');
     const index = parseInt(e.target.getAttribute('data-index'));
 
-    if (playerBoard.isPlacementPossible(currentShip, index, isVertical)) {
+    if (playerBoardObj.isPlacementPossible(currentShip, index, isVertical)) {
       let targetArr = [];
 
       if (isVertical) {
@@ -188,7 +196,7 @@ const UI = (() => {
         targetArr = populateTargetShipCoord(e, 'horizontal');
       }
 
-      playerBoard.placeShip(currentShip, index, isVertical);
+      playerBoardObj.placeShip(currentShip, index, isVertical);
 
       for (let i = 0; i < currentShip.getLength(); i += 1) {
         targetArr[i].setAttribute('data-hasShip', 'true');
@@ -207,15 +215,16 @@ const UI = (() => {
   };
 
   const placeShipsRandomly = () => {
-    const playerBoard = Game.getGameBoard('player');
+    const playerBoardObj = Game.getGameBoard('player');
 
-    playerBoard.resetBoard();
-    playerBoard.randomPlaceShips();
-    updateBoard(playerBoard);
+    playerBoardObj.resetBoard();
+    playerBoardObj.randomPlaceShips();
+    updateBoard(playerBoardObj);
+    donePlacingShips();
   };
 
-  const updateBoard = (board) => {
-    const thisBoard = board.getBoard();
+  const updateBoard = (boardObj) => {
+    const thisBoard = boardObj.getBoard();
     const playerBoardSquares = document.querySelectorAll(
       '.player-board-square'
     );
@@ -224,13 +233,11 @@ const UI = (() => {
       playerBoardSquares[i].classList.remove('placed');
       playerBoardSquares[i].setAttribute('data-hasShip', 'false');
 
-      if (thisBoard[i].hasShip === true) {
+      if (thisBoard[i].hasShip) {
         playerBoardSquares[i].setAttribute('data-hasShip', 'true');
         playerBoardSquares[i].classList.add('placed');
       }
     }
-
-    donePlacingShips();
   };
 
   // Function for changing ship after the previous ship was placed
@@ -254,42 +261,27 @@ const UI = (() => {
   };
 
   const rotateShip = () => {
-    if (isVertical === false) {
-      isVertical = true;
-    } else {
-      isVertical = false;
-    }
+    isVertical ? (isVertical = false) : (isVertical = true);
   };
 
   const resetPlaceShip = () => {
-    const playerBoard = Game.getGameBoard('player');
     const main = document.querySelector('.main');
 
+    Game.restart();
     main.innerHTML = '';
-    playerBoard.resetBoard();
     loadPlaceShipScreen();
     currentShip = ships[0];
   };
 
   const donePlacingShips = () => {
-    const playerBoardSquares = document.querySelectorAll(
-      '.player-board-square'
-    );
     const placeShipInstruction = document.querySelector(
       '.place-ship-instruction'
     );
 
+    placeShipInitEvents('disable');
+
     placeShipInstruction.innerHTML = `<button class="start-btn">Start Game</button>`;
-
-    playerBoardSquares.forEach((square) => {
-      square.removeEventListener('mouseover', addShipPreview);
-      square.removeEventListener('mouseout', removeShipPreview);
-      square.removeEventListener('click', placeShip);
-      square.classList.remove('placing');
-    });
-
     const startBtn = document.querySelector('.start-btn');
-
     startBtn.addEventListener('click', loadMainGameScreen);
   };
 
@@ -298,34 +290,46 @@ const UI = (() => {
     const main = document.querySelector('.main');
 
     main.innerHTML = `
-    <section class="gameboards-container">
-      <div>
+      <section class="gameboard-container">
         <div class="player-board gameboard"></div>
-        <span>Your game board</span>
-      </div>
-      <div>
+        <span class="gameboard-name">Your game board</span>
+      </section>
+      <section class="game-info-container">
+        <span class="game-info">Your turn...</span>
+        <button class="restart-game-btn">Restart Game</button>
+      </section>
+      <section class="gameboard-container">
         <div class="computer-board gameboard"></div>
-        <span>Computer game board</span>
-      </div>
-    </section>`;
+        <span class="gameboard-name">Computer game board</span>
+      </section>`;
 
     Game.init();
     createGameBoard('player');
     createGameBoard('computer');
     loadFleet('player');
     loadFleet('computer');
-    initGameEvents();
+    initGameEvents('enable');
   };
 
-  const initGameEvents = () => {
+  const initGameEvents = (command) => {
     const computerBoardSquares = document.querySelectorAll(
       '.computer-board-square'
     );
+    const restartGameBtn = document.querySelector('.restart-game-btn');
 
-    computerBoardSquares.forEach((square) => {
-      square.addEventListener('click', playerAttack);
-      square.classList.add('shooting-allowed');
-    });
+    if (command === 'enable') {
+      computerBoardSquares.forEach((square) => {
+        square.addEventListener('click', playerAttack);
+        square.classList.add('shooting-allowed');
+      });
+
+      restartGameBtn.addEventListener('click', restartGame);
+    } else {
+      computerBoardSquares.forEach((square) => {
+        square.removeEventListener('click', playerAttack);
+        square.classList.remove('shooting-allowed');
+      });
+    }
   };
 
   const playerAttack = (e) => {
@@ -349,13 +353,11 @@ const UI = (() => {
     targetElement.classList.add('not-allowed');
 
     if (!Game.over()) {
-      setTimeout(computerAttack, 1000);
+      computerAttack();
       return;
     }
 
-    setTimeout(() => {
-      alert(`${Game.getWinner()} WON`);
-    }, 1000);
+    endGame();
   };
 
   const computerAttack = () => {
@@ -363,28 +365,57 @@ const UI = (() => {
       '.player-board-square'
     );
     const playerBoard = Game.getGameBoard('player').getBoard();
+    const gameInfo = document.querySelector('.game-info');
 
     Game.computerTurn();
+    gameInfo.innerHTML = "Computer's turn...";
+    initGameEvents('disable');
 
-    for (let i = 0; i < playerBoard.length; i += 1) {
-      const { hasShip } = playerBoard[i];
-      const { isShot } = playerBoard[i];
-      if (isShot) {
-        playerBoardSquares[i].textContent = 'X';
-        if (hasShip) {
-          playerBoardSquares[i].style.backgroundColor = 'red';
+    setTimeout(() => {
+      for (let i = 0; i < playerBoard.length; i += 1) {
+        const { hasShip } = playerBoard[i];
+        const { isShot } = playerBoard[i];
+        if (isShot) {
+          playerBoardSquares[i].textContent = 'X';
+          if (hasShip) {
+            playerBoardSquares[i].style.backgroundColor = 'red';
+          }
         }
       }
-    }
+
+      setTimeout(() => {
+        gameInfo.innerHTML = 'Your turn...';
+        initGameEvents('enable');
+      }, 1000);
+    }, 1000);
 
     if (Game.over()) {
-      setTimeout(() => {
-        alert(`${Game.getWinner()} WON`);
-      }, 1000);
+      endGame();
     }
   };
 
-  const restartGame = () => {};
+  const endGame = () => {
+    const winner = Game.getWinner();
+    const gameInfo = document.querySelector('.game-info');
+    const restartGameBtn = document.querySelector('.restart-game-btn');
+
+    if (winner === 'player') {
+      gameInfo.innerHTML = `You win!`;
+    } else {
+      gameInfo.innerHTML = `Computer wins!`;
+    }
+    initGameEvents('disable');
+
+    restartGameBtn.textContent = `Play Again`;
+  };
+
+  const restartGame = () => {
+    const main = document.querySelector('.main');
+
+    main.innerHTML = '';
+    Game.restart();
+    loadPlaceShipScreen();
+  };
 
   return { loadPage };
 })();
