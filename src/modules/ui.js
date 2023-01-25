@@ -9,31 +9,27 @@ const UI = (() => {
   };
 
   const createGameBoard = (player) => {
-    const board = document.querySelector(`.${player}-board`);
-    let array = [];
+    const boardElement = document.querySelector(`.${player}-board`);
+    const gameBoardArr = Game.getGameBoard(`${player}`).getBoard();
 
-    if (player === 'player') array = Game.getGameBoard('player').getBoard();
-    else {
-      array = Game.getGameBoard('computer').getBoard();
-    }
-
-    for (let i = 0; i < array.length; i += 1) {
-      board.innerHTML += `<div class="${player}-board-square" data-index="${i}" data-hasShip="${array[i].hasShip}" data-isShot="${array[i].isShot}"></div>`;
+    for (let i = 0; i < gameBoardArr.length; i += 1) {
+      if (player === 'player') {
+        boardElement.innerHTML += `<div class="${player}-board-square" data-index="${i}" data-hasShip="${gameBoardArr[i].hasShip}" data-isShot="${gameBoardArr[i].isShot}"></div>`;
+      } else {
+        boardElement.innerHTML += `<div class="${player}-board-square" data-index="${i}"  data-isShot="${gameBoardArr[i].isShot}"></div>`;
+      }
     }
   };
 
   const loadFleet = (player) => {
-    const board = document.querySelector(`.${player}-board`);
+    const boardSquares = document.querySelectorAll(`.${player}-board-square`);
+    const gameBoard = Game.getGameBoard(`${player}`).getBoard();
 
-    [...board.children].forEach((child) => {
-      if (child.getAttribute('data-hasShip') === 'true') {
-        if (player === 'player') {
-          child.classList.add('placed');
-        } else {
-          child.classList.add('placed');
-        }
+    for (let i = 0; i < gameBoard.length; i += 1) {
+      if (gameBoard[i].hasShip) {
+        boardSquares[i].classList.add('placed');
       }
-    });
+    }
   };
 
   // The following functions are for the placing ship screen
@@ -317,7 +313,7 @@ const UI = (() => {
     createGameBoard('player');
     createGameBoard('computer');
     loadFleet('player');
-    // loadFleet('computer');
+    loadFleet('computer');
     initGameEvents();
   };
 
@@ -336,12 +332,15 @@ const UI = (() => {
     const targetElement = e.target;
     const index = parseInt(targetElement.getAttribute('data-index'));
     const player = Game.getPlayer('player');
-    const computerBoard = Game.getGameBoard('computer');
+    const computerBoardObj = Game.getGameBoard('computer');
+    const computerBoardArr = computerBoardObj.getBoard();
 
-    if (!player.attack(computerBoard, index)) return;
+    if (!player.attack(computerBoardObj, index)) return;
 
-    if (targetElement.getAttribute('data-hasShip') === 'true') {
-      targetElement.classList.add('ship-is-shot');
+    for (let i = 0; i < computerBoardArr.length; i += 1) {
+      if (i === index && computerBoardArr[i].hasShip) {
+        targetElement.classList.add('ship-is-shot');
+      }
     }
 
     targetElement.textContent = 'X';
@@ -355,7 +354,7 @@ const UI = (() => {
     }
 
     setTimeout(() => {
-      alert('YOU WON');
+      alert(`${Game.getWinner()} WON`);
     }, 1000);
   };
 
@@ -365,7 +364,7 @@ const UI = (() => {
     );
     const playerBoard = Game.getGameBoard('player').getBoard();
 
-    Game.turn('computer');
+    Game.computerTurn();
 
     for (let i = 0; i < playerBoard.length; i += 1) {
       const { hasShip } = playerBoard[i];
@@ -376,6 +375,12 @@ const UI = (() => {
           playerBoardSquares[i].style.backgroundColor = 'red';
         }
       }
+    }
+
+    if (Game.over()) {
+      setTimeout(() => {
+        alert(`${Game.getWinner()} WON`);
+      }, 1000);
     }
   };
 
