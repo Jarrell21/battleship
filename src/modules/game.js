@@ -45,7 +45,7 @@ const Game = (() => {
     init();
   };
 
-  const turn = (next) => {
+  const computerTurn = (next) => {
     computer.randomAttack(playerBoard);
   };
 
@@ -69,7 +69,7 @@ const Game = (() => {
     getGameBoard,
     getPlayerShips,
     reset,
-    turn,
+    computerTurn,
     over,
   };
 })();
