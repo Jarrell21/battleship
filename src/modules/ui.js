@@ -291,7 +291,7 @@ const UI = (() => {
 
     main.innerHTML = `
       <section class="gameboard-container">
-      <span class="gameboard-name">Your game board</span>
+        <span class="gameboard-name">Your game board</span>
         <div class="player-board gameboard"></div>
       </section>
       <section class="game-info-container">
@@ -299,7 +299,7 @@ const UI = (() => {
         <button class="restart-game-btn">Restart Game</button>
       </section>
       <section class="gameboard-container">
-      <span class="gameboard-name">Computer game board</span>
+        <span class="gameboard-name">Computer game board</span>
         <div class="computer-board gameboard"></div>
       </section>`;
 
