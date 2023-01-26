@@ -411,11 +411,7 @@ const UI = (() => {
   };
 
   const restartGame = () => {
-    const main = document.querySelector('.main');
-
-    main.innerHTML = '';
-    Game.restart();
-    loadPlaceShipScreen();
+    resetPlaceShip();
   };
 
   return { loadPage };
