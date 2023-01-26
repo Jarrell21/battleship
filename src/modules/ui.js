@@ -40,7 +40,7 @@ const UI = (() => {
 
     main.innerHTML += `
     <section class="placing-ship">
-      <span class="place-ship-instruction">Place your ${currentShip.getName()}</span>
+      <div class="place-ship-instruction">Place your Carrier</div>
       <div class="player-board gameboard"></div>
       <div class="place-ship-buttons">
         <button class="rotate-btn">Rotate</button>
@@ -291,23 +291,22 @@ const UI = (() => {
 
     main.innerHTML = `
       <section class="gameboard-container">
+      <span class="gameboard-name">Your game board</span>
         <div class="player-board gameboard"></div>
-        <span class="gameboard-name">Your game board</span>
       </section>
       <section class="game-info-container">
         <span class="game-info">Your turn...</span>
         <button class="restart-game-btn">Restart Game</button>
       </section>
       <section class="gameboard-container">
+      <span class="gameboard-name">Computer game board</span>
         <div class="computer-board gameboard"></div>
-        <span class="gameboard-name">Computer game board</span>
       </section>`;
 
     Game.init();
     createGameBoard('player');
     createGameBoard('computer');
     loadFleet('player');
-    loadFleet('computer');
     initGameEvents(true);
   };
 
@@ -406,7 +405,7 @@ const UI = (() => {
     } else {
       gameInfo.innerHTML = `Computer wins!`;
     }
-    initGameEvents('disable');
+    initGameEvents(false);
 
     restartGameBtn.textContent = `Play Again`;
   };
