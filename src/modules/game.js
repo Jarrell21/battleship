@@ -40,7 +40,9 @@ const Game = (() => {
   };
 
   const restart = () => {
+    player.reset();
     playerBoard.resetBoard();
+    computer.reset();
     computerBoard.resetBoard();
   };
 
