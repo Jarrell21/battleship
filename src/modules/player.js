@@ -161,19 +161,15 @@ const Player = (name) => {
   const isAttackLogical = (i, directionOfAttack) => {
     for (let j = 0; j < 10; j += 1) {
       if (i === j * 10 - 1 && directionOfAttack === 'right') {
-        console.log('no, right');
         return false;
       }
       if (i === j * 10 && directionOfAttack === 'left') {
-        console.log('no, left');
         return false;
       }
       if (i === j && directionOfAttack === 'up') {
-        console.log('no, up');
         return false;
       }
       if (i > 90 && directionOfAttack === 'down') {
-        console.log('no, down');
         return false;
       }
     }
