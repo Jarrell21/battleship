@@ -385,14 +385,14 @@ const UI = (() => {
       }
 
       setTimeout(() => {
-        gameInfo.innerHTML = 'Your turn...';
-        initGameEvents(true);
+        if (Game.over()) {
+          endGame();
+        } else {
+          gameInfo.innerHTML = 'Your turn...';
+          initGameEvents(true);
+        }
       }, 1000);
     }, 1000);
-
-    if (Game.over()) {
-      endGame();
-    }
   };
 
   const endGame = () => {
